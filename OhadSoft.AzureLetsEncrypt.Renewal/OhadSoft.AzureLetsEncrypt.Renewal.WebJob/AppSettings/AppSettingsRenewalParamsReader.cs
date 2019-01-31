@@ -56,7 +56,7 @@ namespace OhadSoft.AzureLetsEncrypt.Renewal.WebJob.AppSettings
                 GetCommonUriSetting(Constants.AzureTokenAudienceKey),
                 GetCommonUriSetting(Constants.AzureManagementEndpointKey),
                 GetCommonSetting(Constants.AzureDefaultWebSiteDomainNameKey),
-                GetCommonUriSetting(Constants.AuthorizationChallengeBlobStorageAccountKey));
+                GetCommonSetting(Constants.AuthorizationChallengeBlobStorageAccountKey));
         }
 
         private RenewalParameters GetWebAppRenewalInfo(string webApp, SharedRenewalParameters sharedRenewalParams)
@@ -103,7 +103,7 @@ namespace OhadSoft.AzureLetsEncrypt.Renewal.WebJob.AppSettings
                     ResolveOptionalUriSetting(Constants.AzureTokenAudienceKey, webApp, sharedRenewalParams.AzureTokenAudience),
                     ResolveOptionalUriSetting(Constants.AzureManagementEndpointKey, webApp, sharedRenewalParams.AzureManagementEndpoint),
                     ResolveOptionalSetting(Constants.AzureDefaultWebSiteDomainNameKey, webApp, sharedRenewalParams.AzureDefaultWebsiteDomainName),
-                    ResolveOptionalUriSetting(Constants.AuthorizationChallengeBlobStorageAccountKey, webApp, sharedRenewalParams.AuthorizationChallengeBlobStorageAccount));
+                    ResolveOptionalSetting(Constants.AuthorizationChallengeBlobStorageAccountKey, webApp, sharedRenewalParams.AuthorizationChallengeBlobStorageAccount));
             }
             catch (ArgumentException e)
             {

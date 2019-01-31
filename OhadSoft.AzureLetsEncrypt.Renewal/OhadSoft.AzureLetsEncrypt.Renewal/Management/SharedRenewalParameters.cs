@@ -5,7 +5,7 @@ namespace OhadSoft.AzureLetsEncrypt.Renewal.Management
 {
     public sealed class SharedRenewalParameters
     {
-        public SharedRenewalParameters(string resourceGroup, Guid? subscriptionId, string tenantId, Guid? clientId, string clientSecret, string email, string servicePlanResourceGroup, bool? useIpBasedSsl, int? rsaKeyLength, Uri acmeBaseUri, int? renewXNumberOfDaysBeforeExpiration, Uri authenticationUri, Uri azureTokenAudience, Uri azureManagementEndpoint, string azureDefaultWebsiteDomainName, Uri authorizationChallengeBlobStorageAccount)
+        public SharedRenewalParameters(string resourceGroup, Guid? subscriptionId, string tenantId, Guid? clientId, string clientSecret, string email, string servicePlanResourceGroup, bool? useIpBasedSsl, int? rsaKeyLength, Uri acmeBaseUri, int? renewXNumberOfDaysBeforeExpiration, Uri authenticationUri, Uri azureTokenAudience, Uri azureManagementEndpoint, string azureDefaultWebsiteDomainName, string authorizationChallengeBlobStorageAccount)
         {
             ResourceGroup = resourceGroup;
             SubscriptionId = subscriptionId;
@@ -40,7 +40,7 @@ namespace OhadSoft.AzureLetsEncrypt.Renewal.Management
         public Uri AzureTokenAudience { get; }
         public Uri AzureManagementEndpoint { get; }
         public string AzureDefaultWebsiteDomainName { get; }
-        public Uri AuthorizationChallengeBlobStorageAccount { get; }
+        public string AuthorizationChallengeBlobStorageAccount { get; }
 
         public override string ToString()
         {
