@@ -26,6 +26,7 @@ namespace OhadSoft.AzureLetsEncrypt.Renewal.Management
         public Uri AzureTokenAudience { get; }
         public Uri AzureManagementEndpoint { get; }
         public string AzureDefaultWebsiteDomainName { get; }
+        public Uri AuthorizationChallengeBlobStorageAccount { get; }
 
         public RenewalParameters(
             Guid subscriptionId,
@@ -46,7 +47,8 @@ namespace OhadSoft.AzureLetsEncrypt.Renewal.Management
             Uri authenticationUri = null,
             Uri azureTokenAudience = null,
             Uri azureManagementEndpoint = null,
-            string azureDefaultWebsiteDomainName = null)
+            string azureDefaultWebsiteDomainName = null,
+            Uri authorizationChallengeBlobStorageAccount = null)
         {
             SubscriptionId = VerifyGuid(subscriptionId, nameof(subscriptionId));
             TenantId = VerifyString(tenantId, nameof(tenantId));
@@ -67,6 +69,7 @@ namespace OhadSoft.AzureLetsEncrypt.Renewal.Management
             AzureTokenAudience = VerifyOptionalUri(azureTokenAudience, nameof(azureTokenAudience));
             AzureManagementEndpoint = VerifyOptionalUri(azureManagementEndpoint, nameof(azureManagementEndpoint));
             AzureDefaultWebsiteDomainName = VerifyOptionalHostName(azureDefaultWebsiteDomainName, nameof(azureDefaultWebsiteDomainName));
+            AuthorizationChallengeBlobStorageAccount = VerifyOptionalUri(authorizationChallengeBlobStorageAccount, nameof(authorizationChallengeBlobStorageAccount));
         }
 
         private static string VerifyOptionalHostName(string hostName, string name)

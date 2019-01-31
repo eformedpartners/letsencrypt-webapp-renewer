@@ -22,5 +22,6 @@
         public const string AzureManagementEndpointKey = "azureManagementEndpoint";
         public const string AzureDefaultWebSiteDomainNameKey = "azureDefaultWebSiteDomainName";
         public const string SendGridApiKey = "SendGridApiKey";
+        public const string AuthorizationChallengeBlobStorageAccountKey = "authorizationChallengeBlobStorageAccount";
     }
 }

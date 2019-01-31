@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using LetsEncrypt.Azure.Core;
 using LetsEncrypt.Azure.Core.Models;
+using LetsEncrypt.Azure.Core.Services;
 using OhadSoft.AzureLetsEncrypt.Renewal.Configuration;
 
 namespace OhadSoft.AzureLetsEncrypt.Renewal.Management
@@ -44,33 +45,69 @@ namespace OhadSoft.AzureLetsEncrypt.Renewal.Management
                 renewalParams.WebApp,
                 renewalParams.GroupName == null ? String.Empty : $"[{renewalParams.GroupName}]");
 
-            var manager = CertificateManager.CreateKuduWebAppCertificateManager(
-                new AzureWebAppEnvironment(
-                    renewalParams.TenantId,
-                    renewalParams.SubscriptionId,
-                    renewalParams.ClientId,
-                    renewalParams.ClientSecret,
-                    renewalParams.ResourceGroup,
-                    renewalParams.WebApp,
-                    renewalParams.ServicePlanResourceGroup,
-                    renewalParams.SiteSlotName)
-                {
-                    AzureWebSitesDefaultDomainName = renewalParams.AzureDefaultWebsiteDomainName ?? DefaultWebsiteDomainName,
-                    AuthenticationEndpoint = renewalParams.AuthenticationUri ?? new Uri(DefaultAuthenticationUri),
-                    ManagementEndpoint = renewalParams.AzureManagementEndpoint ?? new Uri(DefaultManagementEndpoint),
-                    TokenAudience = renewalParams.AzureTokenAudience ?? new Uri(DefaultAzureTokenAudienceService)
-                },
-                new AcmeConfig
-                {
-                    Host = renewalParams.Hosts[0],
-                    AlternateNames = renewalParams.Hosts.Skip(1).ToList(),
-                    RegistrationEmail = renewalParams.Email,
-                    RSAKeyLength = renewalParams.RsaKeyLength,
-                    PFXPassword = Convert.ToBase64String(pfxPassData),
-                    BaseUri = (renewalParams.AcmeBaseUri ?? new Uri(DefaultAcmeBaseUri)).ToString()
-                },
-                new CertificateServiceSettings { UseIPBasedSSL = renewalParams.UseIpBasedSsl },
-                new AuthProviderConfig());
+            CertificateManager manager;
+            if (renewalParams.AuthorizationChallengeBlobStorageAccount == null)
+            {
+                manager = CertificateManager.CreateKuduWebAppCertificateManager(
+                    new AzureWebAppEnvironment(
+                        renewalParams.TenantId,
+                        renewalParams.SubscriptionId,
+                        renewalParams.ClientId,
+                        renewalParams.ClientSecret,
+                        renewalParams.ResourceGroup,
+                        renewalParams.WebApp,
+                        renewalParams.ServicePlanResourceGroup,
+                        renewalParams.SiteSlotName)
+                    {
+                        AzureWebSitesDefaultDomainName = renewalParams.AzureDefaultWebsiteDomainName ?? DefaultWebsiteDomainName,
+                        AuthenticationEndpoint = renewalParams.AuthenticationUri ?? new Uri(DefaultAuthenticationUri),
+                        ManagementEndpoint = renewalParams.AzureManagementEndpoint ?? new Uri(DefaultManagementEndpoint),
+                        TokenAudience = renewalParams.AzureTokenAudience ?? new Uri(DefaultAzureTokenAudienceService)
+                    },
+                    new AcmeConfig
+                    {
+                        Host = renewalParams.Hosts[0],
+                        AlternateNames = renewalParams.Hosts.Skip(1).ToList(),
+                        RegistrationEmail = renewalParams.Email,
+                        RSAKeyLength = renewalParams.RsaKeyLength,
+                        PFXPassword = Convert.ToBase64String(pfxPassData),
+                        BaseUri = (renewalParams.AcmeBaseUri ?? new Uri(DefaultAcmeBaseUri)).ToString()
+                    },
+                    new CertificateServiceSettings { UseIPBasedSSL = renewalParams.UseIpBasedSsl },
+                    new AuthProviderConfig());
+            }
+            else
+            {
+                var blobProvider = new BlobStorageAuthorizationChallengeProvider(renewalParams.AuthorizationChallengeBlobStorageAccount.ToString());
+                var azureWebAppEnvironment = new AzureWebAppEnvironment(
+                        renewalParams.TenantId,
+                        renewalParams.SubscriptionId,
+                        renewalParams.ClientId,
+                        renewalParams.ClientSecret,
+                        renewalParams.ResourceGroup,
+                        renewalParams.WebApp,
+                        renewalParams.ServicePlanResourceGroup,
+                        renewalParams.SiteSlotName)
+                        {
+                            AzureWebSitesDefaultDomainName = renewalParams.AzureDefaultWebsiteDomainName ?? DefaultWebsiteDomainName,
+                            AuthenticationEndpoint = renewalParams.AuthenticationUri ?? new Uri(DefaultAuthenticationUri),
+                            ManagementEndpoint = renewalParams.AzureManagementEndpoint ?? new Uri(DefaultManagementEndpoint),
+                            TokenAudience = renewalParams.AzureTokenAudience ?? new Uri(DefaultAzureTokenAudienceService)
+                        };
+                manager = new CertificateManager(
+                    azureWebAppEnvironment,
+                    new AcmeConfig
+                    {
+                        Host = renewalParams.Hosts[0],
+                        AlternateNames = renewalParams.Hosts.Skip(1).ToList(),
+                        RegistrationEmail = renewalParams.Email,
+                        RSAKeyLength = renewalParams.RsaKeyLength,
+                        PFXPassword = Convert.ToBase64String(pfxPassData),
+                        BaseUri = (renewalParams.AcmeBaseUri ?? new Uri(DefaultAcmeBaseUri)).ToString()
+                    },
+                    new WebAppCertificateService(azureWebAppEnvironment, new CertificateServiceSettings { UseIPBasedSSL = renewalParams.UseIpBasedSsl }),
+                    blobProvider);
+            }
 
             if (renewalParams.RenewXNumberOfDaysBeforeExpiration > 0)
             {
